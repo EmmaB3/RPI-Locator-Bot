@@ -1,0 +1,5 @@
+feedparser==6.0.10
+Flask==2.2.1
+Flask-SQLAlchemy==2.5.1
+slack-sdk==3.18.1
+SQLAlchemy==1.4.40

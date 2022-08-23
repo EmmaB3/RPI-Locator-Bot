@@ -1,4 +1,4 @@
 plans.txt
-slackbot-tutorial/**
 **/__pycache__/**
 env/**
+**.sqlite3
