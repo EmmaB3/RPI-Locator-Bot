@@ -3,19 +3,16 @@
 #          rpi restock notifications
 # AUTHOR: Emma Bethel
 # CREATED: 8/18/22
-# LAST EDITED: 8/20/22
+# LAST EDITED: 8/23/22
 
-from flask_sqlalchemy import SQLAlchemy
-from pi_locator_bot import app
-
-
-db = SQLAlchemy(app)
+from pi_locator_bot import db
 
 
 class Team(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(16), primary_key=True)
+    name = db.Column(db.String(64), nullable=False)
     bot_token = db.Column(db.String(64), nullable=False)
-    signing_token = db.Column(db.String(64), nullable=False)
+    bot_user_id = db.Column(db.String(16), nullable=False)
 
 
 class Subscriber(db.Model):

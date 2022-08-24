@@ -6,20 +6,35 @@
 
 import logging
 
-from flask import request, make_response
-from pi_locator_bot import app
+from flask import make_response
+from pi_locator_bot import slack_events_adapter
+from pi_locator_bot.models import Team
+from pi_locator_bot.messages import handle_message
+from slack_sdk import WebClient
 
 logging.basicConfig(level=logging.DEBUG)
 
 
-@app.route("/slack/test", methods=["POST"])
-def handle_message():
-    # TODO: verify... somehow (use this? https://pypi.org/project/slackeventsapi/ not sure how it would work for everything in db though)
-
+@slack_events_adapter.on("message")
+def respond_to_dm(payload):
     # for verifying endpoint w/ slack (delete later)
-    challenge = request.json.get('challenge')
+    challenge = payload.get('challenge')
     if challenge is not None:
-        make_response(challenge)
+        return make_response(challenge)
 
-    print(request.json)
-    return make_response('hello world')
+    team = Team.query.filter_by(id=payload['team_id']).first()
+    user_id = payload['event']['user']
+
+    # if message is a DM and didn't come from the bot itself, respond to it
+    if user_id != team.bot_user_id and payload['event']['channel_type'] == 'im':
+        message_text = payload['event']['text']
+        slack_client = WebClient(token=team.bot_token)
+
+        response_text = handle_message(message_text)
+
+        slack_client.chat_postMessage(
+            channel=user_id,
+            text=response_text
+        )
+
+    return make_response()
