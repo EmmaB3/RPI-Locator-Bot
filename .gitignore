@@ -3,3 +3,4 @@ plans.txt
 env/**
 **.sqlite3
 .env
+.vscode
