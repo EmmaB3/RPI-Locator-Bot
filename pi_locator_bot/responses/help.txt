@@ -1,0 +1,26 @@
+*Commands:*
+
+`subscribe [types=<pi_types>] [vendors=<vendors>] [regions=<regions]` - subscribe to restock notifications for the specified Pi types and vendors. If none specified, you will be subscribed to all. Note that each vendor parameter corresponds to exactly one region; vendors which operate in multiple regions, such as PiShop, will have multiple region-specific parameter options, such as `pishopus` and `pishopuk`. You may also subscribe to regions, in which case you will be subscribed to all vendors within that region.
+
+`list vendors` - get a list of available vendors, sorted by region
+
+`list types` - get a list of available pi types
+
+`list subscriptions` - get a list of ids and descriptions of all notifications you are currently subscribed to
+
+`unsubscribe <notification_id>` - unsubscribe from the notification with the given ID (use `list-notifications` to find the notification id)
+
+`tips` - see a list of tips for how best to proceed once you get a restock notification
+
+`about` - find out more about the code behind this bot + how to submit feature requests and bug reports
+
+`help` - see this message
+
+
+*Examples:*
+
+`subscribe vendors=adafruit,sparkfun types=pi3,pi4` - subscribe to restock notifications for Pi 3s and Pi 4s from Adafruit and Sparkfun
+
+`subscribe types=pi4` - subscribe to restock notifications for Pi 4s from all US vendors
+
+`subscribe regions=us` - subscribe to restock notifications for all Pi types from all US vendors

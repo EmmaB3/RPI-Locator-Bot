@@ -4,3 +4,5 @@ env/**
 **.sqlite3
 .env
 .vscode
+.DS_Store
+test_feed.rss

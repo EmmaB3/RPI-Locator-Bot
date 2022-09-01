@@ -7,15 +7,13 @@
 import re
 from typing import Sequence
 
-from pi_locator_bot import db
+from pi_locator_bot import basedir, db
 from pi_locator_bot.countries import Country
-from pi_locator_bot.models import (PiSubscription, PiSubscriptionToType, 
-                                   PiSubscriptionToVendor, PiType, PiVendor, 
-                                   Subscriber)
+from pi_locator_bot.models import PiSubscription, PiType, PiVendor, Subscriber
 
 
-# TEAM ID IS DB ID, NOT SLACK ID. COULD DO SAME WITH USER ID?
-def handle_message(statement: str, user_id: str, team_id: str) -> str:
+# TEAM ID IS DB ID, NOT SLACK ID
+def handle_message(statement: str, user_slack_id: str, team_id: str) -> str:
     # normalizing string
     word_list = statement.split(' ')
     command = re.sub(r'[^\w\s]', '', word_list[0])
@@ -25,20 +23,30 @@ def handle_message(statement: str, user_id: str, team_id: str) -> str:
 
     # matching statement to expected ones
     if command == 'subscribe':
-        return subscribe(arguments, user_id, team_id)
+        return subscribe(arguments, user_slack_id, team_id)
     elif command == 'list':
-        return list(arguments, user_id, team_id)
+        return show_list(arguments, user_slack_id, team_id)
     elif command == 'unsubscribe':
-        return unsubscribe(arguments, user_id, team_id)
+        return unsubscribe(arguments, user_slack_id, team_id)
+    elif command in ('help', 'about', 'tips'):
+        return read_response_from_file(command)
     elif command == 'beep':
         return 'boop'
     else:
-        print('STATEMENT', statement)
         return ('Sorry, I didn\'t get that. Use the `help` command to see '
                 'available commands and example usage.')
 
 
-def list(arguments: Sequence[str], user_id: str, team_id: str) -> str:
+# FILE NAME SHOULD NOT INCLUDE .TXT
+def read_response_from_file(file_name: str):
+    response_file = open(f'{basedir}/responses/{file_name}.txt')
+    response = response_file.read()
+    response_file.close()
+
+    return response
+
+
+def show_list(arguments: Sequence[str], user_slack_id: str, team_id: str) -> str:
     if len(arguments) == 0:
         return 'Error: `list` command requires a type.'
 
@@ -63,42 +71,45 @@ def list(arguments: Sequence[str], user_id: str, team_id: str) -> str:
         
         return output
     if arguments[0] == 'subscriptions':
-        subscriptions = PiSubscription.query.join(Subscriber).filter_by(slack_id=user_id).filter_by(team=team_id)  # TODO: filter by team as well aaah
-        output = ''
+        subscriptions = PiSubscription.query.join(Subscriber).filter_by(slack_id=user_slack_id).filter_by(team=team_id)
 
+        output = ''
         for subscription in subscriptions:
-            types = PiType.query.join(PiSubscriptionToType).filter_by(subscription=subscription.id)
-            vendors = PiVendor.query.join(PiSubscriptionToVendor).filter_by(subscription=subscription.id)
+            types = subscription.types
+            vendors = subscription.vendors
             type_names, vendor_names = [], []
             for type in types:
                 type_names.append(str(type))
             for vendor in vendors:
                 vendor_names.append(str(vendor))
             output += f'\u2022 Subscription {subscription.id}: Restock notifications for pi type(s) {", ".join(type_names)} from vendor(s) {", ".join(vendor_names)}\n'
+        
+        if output == '':
+            return ('You are not subscribed to any restock notifications at this time. Use the `subscribe` command to '
+                    'change that!')
         return output
 
     return f'Sorry, \'{arguments[0]}\' is not a valid list type.'
 
 
-def unsubscribe(arguments: Sequence[str], user_id: str, team_id: str) -> str:
-    subscriber = Subscriber.query.filter_by(slack_id=user_id).filter_by(team=team_id).first()
+def unsubscribe(arguments: Sequence[str], user_slack_id: str, team_id: str) -> str:
+    error_message = ('Sorry, {subscription} is not one of your subscriptions. You can check the ids of your '
+                     'current subscriptions with the `list subscriptions` command.')
+    subscriber = Subscriber.query.filter_by(slack_id=user_slack_id).filter_by(team=team_id).first()
     if subscriber is None:
-        return f'Sorry, you don\'t have any subscriptions.'
+        return 'You do not have any subscriptions at this time. Try creating some with the `subscription` command!'
 
     deleted_ids = []
     for subscription_id in arguments:
-        print('HERE', subscription_id)
         try:
             subscription_id = int(subscription_id)
         except ValueError:
-            return (f'Sorry, {subscription_id} is not a valid subscription id. You can check the ids of your current '
-                    'subscriptions with the `list subscriptions` command.')
+            return error_message.format(subscription=subscription_id)
         
         subscription = PiSubscription.query.get(subscription_id)
 
         if subscription is None or subscription.subscriber != subscriber.id:
-            return (f'Sorry, {subscription_id} is not one of your subscriptions. You can check the ids of your current '
-                    'subscriptions with the `list subscriptions` command.')
+            return error_message.format(subscription=subscription_id)
 
         db.session.delete(subscription)
         deleted_ids.append(str(subscription.id))
@@ -106,17 +117,17 @@ def unsubscribe(arguments: Sequence[str], user_id: str, team_id: str) -> str:
     db.session.commit()
     return f'Successfully deleted subscription(s) {", ".join(deleted_ids)}.'
 
-def subscribe(arguments: Sequence[str], user_id: str, team_id: str) -> str:
+def subscribe(arguments: Sequence[str], user_slack_id: str, team_id: str) -> str:
     parsed_args = {}
     for arg in arguments:
         split_arg = arg.split('=')
         if len(split_arg) == 2:
             parsed_args[split_arg[0]] = split_arg[1].split(',')
 
-    subscriber = Subscriber.query.filter_by(slack_id=user_id)\
+    subscriber = Subscriber.query.filter_by(slack_id=user_slack_id)\
                                  .filter_by(team=team_id).first()
     if subscriber is None:
-        subscriber = Subscriber(slack_id=user_id, team=team_id)
+        subscriber = Subscriber(slack_id=user_slack_id, team=team_id)
         db.session.add(subscriber)
         
     type_params = parsed_args.get('types')
@@ -129,20 +140,23 @@ def subscribe(arguments: Sequence[str], user_id: str, team_id: str) -> str:
             if obj is None:
                 return f'Error: {type_name} is not a valid pi type.'
             types.append(obj)
-    
+
     region_params = parsed_args.get('regions')
     vendor_params = parsed_args.get('vendors')
     if vendor_params is None:
         if region_params is None:
             vendors = PiVendor.query.all()
         else:
-            countries = [country.value for country in Country]
+            all_countries = [country.value for country in Country]
+            countries = []
             for region_name in region_params:
                 region_name = region_name.upper()
-                if region_name not in countries:
+                if region_name not in all_countries:
                     return f'Error: {region_name} is not a valid region.'
+                else:
+                    countries.append(region_name)
+            vendors = list(PiVendor.query.filter(PiVendor.country.in_(countries)))
 
-            vendors = PiVendor.query.filter(PiVendor.country.in_(countries))
     else:
         vendors = []
         for vendor_name in vendor_params:  # TODO: this code loooks pretty repetitive (from when you did it with types)... modularize?
@@ -151,28 +165,16 @@ def subscribe(arguments: Sequence[str], user_id: str, team_id: str) -> str:
                 return f'Error: {vendor_name} is not a valid pi vendor.'
             vendors.append(obj)
 
-    subscription = PiSubscription(subscriber=subscriber.id)
+    subscription = PiSubscription(subscriber=subscriber.id, vendors=vendors, types=types)
     db.session.add(subscription)
     db.session.commit()
 
     vendor_names, type_names = [], []
     for vendor in vendors:
         vendor_names.append(str(vendor))
-        db.session.add(
-            PiSubscriptionToVendor(
-                vendor=vendor.id,
-                subscription=subscription.id
-            )
-        )
+
     for type in types:
         type_names.append(str(type))
-        db.session.add(
-            PiSubscriptionToType(
-                type=type.id,
-                subscription=subscription.id
-            )
-        )
-    db.session.commit()
 
     return (
         'Now subscribed to restock notifications for pi type(s) '

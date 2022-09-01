@@ -1,0 +1,1 @@
+This bot relies heavily on the RSS feed available at https://rpilocator.com/; huge kudos to the dude over at https://dphacks.com/ for setting that up!

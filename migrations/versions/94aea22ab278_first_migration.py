@@ -1,8 +1,8 @@
-"""Initial migration.
+"""first migration
 
-Revision ID: 463fe867ce9c
+Revision ID: 94aea22ab278
 Revises: 
-Create Date: 2022-08-24 22:01:54.300964
+Create Date: 2022-08-31 23:51:07.046427
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '463fe867ce9c'
+revision = '94aea22ab278'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,7 +22,8 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('param_name', sa.String(length=4), nullable=False),
     sa.Column('pretty_name', sa.String(length=8), nullable=False),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('param_name')
     )
     op.create_table('pi_vendor',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -38,12 +39,14 @@ def upgrade():
     sa.Column('name', sa.String(length=64), nullable=False),
     sa.Column('bot_token', sa.String(length=64), nullable=False),
     sa.Column('bot_user_id', sa.String(length=16), nullable=False),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('slack_id')
     )
     op.create_table('subscriber',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('slack_id', sa.String(length=16), nullable=False),
     sa.Column('team', sa.Integer(), nullable=False),
+    sa.Column('is_admin', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['team'], ['team.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -54,20 +57,16 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('pi_subscription_to_type',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('type', sa.Integer(), nullable=False),
-    sa.Column('subscription', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['subscription'], ['pi_subscription.id'], ),
-    sa.ForeignKeyConstraint(['type'], ['pi_type.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.Column('subscription_id', sa.Integer(), nullable=True),
+    sa.Column('type_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['subscription_id'], ['pi_subscription.id'], ),
+    sa.ForeignKeyConstraint(['type_id'], ['pi_type.id'], )
     )
     op.create_table('pi_subscription_to_vendor',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('vendor', sa.Integer(), nullable=False),
-    sa.Column('subscription', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['subscription'], ['pi_subscription.id'], ),
-    sa.ForeignKeyConstraint(['vendor'], ['pi_vendor.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.Column('subscription_id', sa.Integer(), nullable=True),
+    sa.Column('vendor_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['subscription_id'], ['pi_subscription.id'], ),
+    sa.ForeignKeyConstraint(['vendor_id'], ['pi_vendor.id'], )
     )
     # ### end Alembic commands ###
 

@@ -1,6 +1,5 @@
 # NAME: listener.py
-# PURPOSE: tracking raspberry pi restocks and notifying subscribed users 
-#          accordingly
+# PURPOSE: tracking raspberry pi restocks and notifying subscribed users accordingly
 # AUTHOR: Emma Bethel
 # CREATED: 8/18/22
 # LAST EDITED: 8/18/22
@@ -23,7 +22,7 @@ def main():
             if restock['published_parsed'] <= last_refresh_time:
                 break
 
-            send_restock_notification([tag['term'] for tag in restock['tags']])
+            send_restock_notification([tag['term'] for tag in restock['tags']], restock['title'])
 
         last_refresh_time = loop_start_time
         time.sleep(60)
