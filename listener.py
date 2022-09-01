@@ -10,10 +10,11 @@ import feedparser
 from notifier import send_restock_notification
 
 
-def main():
+def listen_for_restocks():
     last_refresh_time = time.gmtime(time.time())
 
     while True:
+        print('listening...')
         loop_start_time = time.gmtime(time.time())
         feed_contents = feedparser.parse('https://rpilocator.com/feed')
 
@@ -29,4 +30,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    listen_for_restocks()
