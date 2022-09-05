@@ -2,16 +2,17 @@
 # PURPOSE: chatbot API endpoint implementation
 # AUTHOR: Emma Bethel
 # CREATED: 8/22/22
-# LAST EDITED: 8/24/22
+# LAST EDITED: 9/4/22
 
 import logging
 
-from flask import make_response
-from pi_locator_bot import slack_events_adapter
+from flask import make_response, request, render_template
+from pi_locator_bot import app, db, slack_events_adapter, OAUTH_REDIRECT_URI, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET
 from pi_locator_bot.messages import handle_message
 from pi_locator_bot.models import Team
 from pi_locator_bot.monitoring import report_error
 from slack_sdk import WebClient
+from sqlalchemy.exc import IntegrityError
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -38,3 +39,35 @@ def respond_to_dm(payload):
         )
 
     return make_response()
+
+
+@app.route('/', methods=['GET'])
+def show_homepage():
+    return render_template('index.html', url=OAUTH_REDIRECT_URI)
+
+@app.route('/slack/oauth', methods=['GET'])
+def ouath_callback():
+    code = request.args.get('code')
+    if code is not None:
+        client = WebClient()
+
+        oauth_response = client.oauth_v2_access(
+            client_id=SLACK_CLIENT_ID,
+            client_secret=SLACK_CLIENT_SECRET,
+            redirect_uri=OAUTH_REDIRECT_URI,
+            code=code
+        )
+
+        if oauth_response['ok']:
+            team_name = oauth_response['team']['name']
+            team_id = oauth_response['team']['id']
+            bot_user_id = oauth_response['bot_user_id']
+            bot_token = oauth_response['access_token']
+
+            try:
+                db.session.add(Team(slack_id=team_id, name=team_name, bot_token=bot_token, bot_user_id=bot_user_id))
+                db.session.commit()
+                return make_response('Success', 201)
+            except IntegrityError:
+                return make_response('Error: Bot has already been added to this workspace.', 400)
+    return make_response('Authentication Failed', 401)

@@ -8,6 +8,7 @@ from slackeventsapi import SlackEventAdapter
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
+BASE_URL = os.environ['BASE_URL']
 
 # database setup
 app.config['SQLALCHEMY_DATABASE_URI'] =\
@@ -18,9 +19,14 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 # slack setup
+SLACK_CLIENT_ID = os.environ['SLACK_CLIENT_ID']
+SLACK_SIGNING_SECRET = os.environ['SLACK_SIGNING_SECRET']
+SLACK_CLIENT_SECRET = os.environ['SLACK_CLIENT_SECRET']
+OAUTH_REDIRECT_URI = f'{BASE_URL}/slack/oauth'
+
 slack_events_adapter = SlackEventAdapter(
-    os.environ['SLACK_SIGNING_SECRET'],
-    "/slack/test",
+    SLACK_SIGNING_SECRET,
+    "/slack/chatbot",
     app
 )
 
