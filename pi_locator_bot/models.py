@@ -20,7 +20,7 @@ pi_subscription_type = db.Table('pi_subscription_to_type',
 )
 
 
-class Team(db.Model):
+class Workspace(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     slack_id = db.Column(db.String(16), nullable=False, unique=True)
     name = db.Column(db.String(64), nullable=False)
@@ -31,7 +31,7 @@ class Team(db.Model):
 class Subscriber(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     slack_id = db.Column(db.String(16), nullable=False)
-    team = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
+    workspace = db.Column(db.Integer, db.ForeignKey("workspace.id"), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
 
 
@@ -46,7 +46,7 @@ class PiSubscription(db.Model):
 class PiVendor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     param_name = db.Column(db.String(16), nullable=False, unique=True)
-    pretty_name = db.Column(db.String(16), nullable=False)
+    pretty_name = db.Column(db.String(32), nullable=False)
     country = db.Column(db.String(2), nullable=False)
 
     def __repr__(self) -> str:
@@ -55,8 +55,8 @@ class PiVendor(db.Model):
 
 class PiType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    param_name = db.Column(db.String(4), nullable=False, unique=True)
-    pretty_name = db.Column(db.String(8), nullable=False)
+    param_name = db.Column(db.String(8), nullable=False, unique=True)
+    pretty_name = db.Column(db.String(16), nullable=False)
 
     def __repr__(self) -> str:
         return self.pretty_name

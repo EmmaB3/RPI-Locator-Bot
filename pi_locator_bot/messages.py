@@ -12,8 +12,8 @@ from pi_locator_bot.countries import Country
 from pi_locator_bot.models import PiSubscription, PiType, PiVendor, Subscriber
 
 
-# TEAM ID IS DB ID, NOT SLACK ID
-def handle_message(statement: str, user_slack_id: str, team_id: str) -> str:
+# WORKSPACE ID IS DB ID, NOT SLACK ID
+def handle_message(statement: str, user_slack_id: str, workspace_id: str) -> str:
     # normalizing string
     word_list = statement.split(' ')
     command = re.sub(r'[^\w\s]', '', word_list[0])
@@ -24,11 +24,11 @@ def handle_message(statement: str, user_slack_id: str, team_id: str) -> str:
 
     # matching statement to expected ones
     if command == 'subscribe':
-        return subscribe(arguments, user_slack_id, team_id)
+        return subscribe(arguments, user_slack_id, workspace_id)
     elif command == 'list':
-        return show_list(arguments, user_slack_id, team_id)
+        return show_list(arguments, user_slack_id, workspace_id)
     elif command == 'unsubscribe':
-        return unsubscribe(arguments, user_slack_id, team_id)
+        return unsubscribe(arguments, user_slack_id, workspace_id)
     elif command in ('help', 'about', 'tips'):
         return read_response_from_file(command)
     elif command == 'beep':
@@ -47,7 +47,7 @@ def read_response_from_file(file_name: str):
     return response
 
 
-def show_list(arguments: Sequence[str], user_slack_id: str, team_id: str) -> str:
+def show_list(arguments: Sequence[str], user_slack_id: str, workspace_id: str) -> str:
     if len(arguments) == 0:
         return 'Error: `list` command requires a type.'
 
@@ -72,7 +72,7 @@ def show_list(arguments: Sequence[str], user_slack_id: str, team_id: str) -> str
         
         return output
     if arguments[0] == 'subscriptions':
-        subscriptions = PiSubscription.query.join(Subscriber).filter_by(slack_id=user_slack_id).filter_by(team=team_id)
+        subscriptions = PiSubscription.query.join(Subscriber).filter_by(slack_id=user_slack_id).filter_by(workspace=workspace_id)
 
         output = ''
         for subscription in subscriptions:
@@ -93,10 +93,10 @@ def show_list(arguments: Sequence[str], user_slack_id: str, team_id: str) -> str
     return f'Sorry, \'{arguments[0]}\' is not a valid list type.'
 
 
-def unsubscribe(arguments: Sequence[str], user_slack_id: str, team_id: str) -> str:
+def unsubscribe(arguments: Sequence[str], user_slack_id: str, workspace_id: str) -> str:
     error_message = ('Sorry, {subscription} is not one of your subscriptions. You can check the ids of your '
                      'current subscriptions with the `list subscriptions` command.')
-    subscriber = Subscriber.query.filter_by(slack_id=user_slack_id).filter_by(team=team_id).first()
+    subscriber = Subscriber.query.filter_by(slack_id=user_slack_id).filter_by(workspace=workspace_id).first()
     if subscriber is None:
         return 'You do not have any subscriptions at this time. Try creating some with the `subscription` command!'
 
@@ -118,7 +118,7 @@ def unsubscribe(arguments: Sequence[str], user_slack_id: str, team_id: str) -> s
     db.session.commit()
     return f'Successfully deleted subscription(s) {", ".join(deleted_ids)}.'
 
-def subscribe(arguments: Sequence[str], user_slack_id: str, team_id: str) -> str:
+def subscribe(arguments: Sequence[str], user_slack_id: str, workspace_id: str) -> str:
     parsed_args = {}
     for arg in arguments:
         split_arg = arg.split('=')
@@ -126,9 +126,9 @@ def subscribe(arguments: Sequence[str], user_slack_id: str, team_id: str) -> str
             parsed_args[split_arg[0]] = split_arg[1].split(',')
 
     subscriber = Subscriber.query.filter_by(slack_id=user_slack_id)\
-                                 .filter_by(team=team_id).first()
+                                 .filter_by(workspace=workspace_id).first()
     if subscriber is None:
-        subscriber = Subscriber(slack_id=user_slack_id, team=team_id)
+        subscriber = Subscriber(slack_id=user_slack_id, workspace=workspace_id)
         db.session.add(subscriber)
         
     type_params = parsed_args.get('types')

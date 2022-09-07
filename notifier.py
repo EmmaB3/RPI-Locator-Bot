@@ -1,6 +1,6 @@
 from typing import Sequence
 
-from pi_locator_bot.models import PiSubscription, PiType, PiVendor, Subscriber, Team
+from pi_locator_bot.models import PiSubscription, PiType, PiVendor, Subscriber, Workspace
 from slack_sdk import WebClient
 
 
@@ -17,8 +17,8 @@ def send_restock_notification(tags: Sequence[str], text: str) -> None:
         subscribers = Subscriber.query.join(PiSubscription.query.filter(PiSubscription.vendors.any(id=vendor.id)).filter(PiSubscription.types.any(id=type.id)))
 
         for subscriber in subscribers:
-            team = Team.query.get(subscriber.team)
-            slack_client = WebClient(token=team.bot_token)
+            workspace = Workspace.query.get(subscriber.workspace)
+            slack_client = WebClient(token=workspace.bot_token)
 
             slack_client.chat_postMessage(
                 channel=subscriber.slack_id,

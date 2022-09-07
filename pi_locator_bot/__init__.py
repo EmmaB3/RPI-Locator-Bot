@@ -8,12 +8,16 @@ from slackeventsapi import SlackEventAdapter
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+DATABASE_NAME = 'rpi_notifier'
+DATABASE_USER_NAME = 'slackbot'
+
 app = Flask(__name__)
 BASE_URL = os.environ['BASE_URL']
 
 # database setup
+DATABASE_PASSWORD = os.environ['DATABASE_PASSWORD']
 app.config['SQLALCHEMY_DATABASE_URI'] =\
-    'sqlite:///' + os.path.join(basedir, 'db.sqlite3')
+    f'mysql://{DATABASE_USER_NAME}:{DATABASE_PASSWORD}@localhost/{DATABASE_NAME}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)

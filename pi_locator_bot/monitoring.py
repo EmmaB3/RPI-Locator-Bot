@@ -4,15 +4,15 @@
 # CREATED: 8/31/22
 # LAST EDITED: 8/31/22
 
-from pi_locator_bot.models import Subscriber, Team
+from pi_locator_bot.models import Subscriber, Workspace
 from slack_sdk import WebClient
 
 def report_error(error):
     admins = Subscriber.query.filter_by(is_admin=True)
 
     for admin in admins:
-        team = Team.query.get(admin.team)
-        slack_client = WebClient(token=team.bot_token)
+        workspace = Workspace.query.get(admin.workspace)
+        slack_client = WebClient(token=workspace.bot_token)
 
         slack_client.chat_postMessage(
             channel=admin.slack_id,

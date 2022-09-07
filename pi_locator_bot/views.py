@@ -9,7 +9,7 @@ import logging
 from flask import make_response, request, render_template
 from pi_locator_bot import app, db, slack_events_adapter, OAUTH_REDIRECT_URI, SLACK_CLIENT_ID, SLACK_CLIENT_SECRET
 from pi_locator_bot.messages import handle_message
-from pi_locator_bot.models import Team
+from pi_locator_bot.models import Workspace
 from pi_locator_bot.monitoring import report_error
 from slack_sdk import WebClient
 from sqlalchemy.exc import IntegrityError
@@ -19,16 +19,16 @@ logging.basicConfig(level=logging.DEBUG)
 
 @slack_events_adapter.on("message")
 def respond_to_dm(payload):
-    team = Team.query.filter_by(slack_id=payload['team_id']).first()
+    workspace = Workspace.query.filter_by(slack_id=payload['team_id']).first()
     user_slack_id = payload['event']['user']
 
     # if message is a DM and didn't come from the bot itself, respond to it
-    if user_slack_id != team.bot_user_id and payload['event']['channel_type'] == 'im':
+    if user_slack_id != workspace.bot_user_id and payload['event']['channel_type'] == 'im':
         message_text = payload['event']['text']
-        slack_client = WebClient(token=team.bot_token)
+        slack_client = WebClient(token=workspace.bot_token)
 
         try:
-            response_text = handle_message(message_text, user_slack_id, team.id)
+            response_text = handle_message(message_text, user_slack_id, workspace.id)
         except Exception as e:
             response_text = 'Sorry, an error has occured. Developers will be notified.'
             report_error(e)
@@ -59,13 +59,13 @@ def ouath_callback():
         )
 
         if oauth_response['ok']:
-            team_name = oauth_response['team']['name']
-            team_id = oauth_response['team']['id']
+            workspace_name = oauth_response['team']['name']
+            workspace_id = oauth_response['team']['id']
             bot_user_id = oauth_response['bot_user_id']
             bot_token = oauth_response['access_token']
 
             try:
-                db.session.add(Team(slack_id=team_id, name=team_name, bot_token=bot_token, bot_user_id=bot_user_id))
+                db.session.add(Workspace(slack_id=workspace_id, name=workspace_name, bot_token=bot_token, bot_user_id=bot_user_id))
                 db.session.commit()
                 return make_response('Success', 201)
             except IntegrityError:
