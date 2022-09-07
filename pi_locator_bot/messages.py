@@ -17,6 +17,7 @@ def handle_message(statement: str, user_slack_id: str, team_id: str) -> str:
     # normalizing string
     word_list = statement.split(' ')
     command = re.sub(r'[^\w\s]', '', word_list[0])
+    command = command.lower()
     arguments = []
     for word in word_list[1:]:
         arguments.append(word.lower().strip())

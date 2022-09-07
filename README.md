@@ -1,5 +1,5 @@
-# Raspberry Pi Locator Slackbot
+# Raspberry Pi Restock Notifier
 
 Hi!
 
-Welcome to the codebase for the Raspberry Pi Locator SlackBot!! Real README coming soon.
+Welcome to the codebase for the Raspberry Pi Restock Notifier Slackhot!! Real README coming soon.

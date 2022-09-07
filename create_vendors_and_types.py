@@ -16,14 +16,102 @@ VENDORS = [
             ('Digi-Key', 'digikeyus'),
             ('Newark', 'newark'),
             ('OKDO', 'okdous'),
-            ('Pishop', 'pishopus'),
+            ('PiShop', 'pishopus'),
             ('Sparkfun', 'sparkfun'),
             ('Vilros', 'vilros')
         ]
     ),
     (
         Country.UNITED_KINGDOM, [
-            ('Farnell', 'farnell')
+            ('Farnell', 'farnell'),
+            ('Cool Components', 'coolcomp'),
+            ('OKDO', 'okdouk'),
+            ('Pimoroni', 'pimoroni'),
+            ('Rapid', 'rapid'),
+            ('SB Components', 'sbcomp'),
+            ('The Pihut', 'thepihut'),
+        ]
+    ),
+    (
+        Country.SOUTH_AFRICA, [
+            ('PiShop', 'pishopza')
+        ]
+    ),
+    (
+        Country.SWEDEN, [
+            ('electro:kit', 'electrokit')
+        ]
+    ),
+    (
+        Country.PORTUGAL, [
+            ('Robert Mauser', 'mauserpt')
+        ]
+    ),
+    (
+        Country.POLAND, [
+            ('Botland', 'botland')
+        ]
+    ),
+    (
+        Country.NETHERLANDS, [
+            ('RaspberryStore', 'raspberrystore'),
+            ('OKDO', 'okdonl'),
+            ('Elektronica Voor Jou', 'elektronica'),
+            ('Elektor', 'elektor')
+        ]
+    ),
+    (
+        Country.JAPAN, [
+            ('Switch Science', 'switchjp')
+        ]
+    ),
+    (
+        Country.ITALY, [
+            ('Melopero', 'melopero')
+        ]
+    ),
+    (
+        Country.FRANCE, [
+            ('Kubii', 'kubii')
+        ]
+    ),
+    (
+        Country.SPAIN, [
+            ('Tiendatec', 'tiendatec')
+        ]
+    ),
+    (
+        Country.GERMANY, [
+            ('pi3g', 'pi3g'),
+            ('Welectron', 'welectron'),
+            ('Reichelt', 'reichelt'),
+            ('Rasppishop', 'rasppishop'),
+            ('BerryBase', 'berrybase')
+        ]
+    ),
+    (
+        Country.CHINA, [
+            ('Seeedstudio', 'seeedstudio')
+        ]
+    ),
+    (
+        Country.SWITZERLAND, [
+            ('PiShop', 'pishopch')
+        ]
+    ),
+    (
+        Country.CANADA, [
+            ('PiShop', 'pishopca')
+        ]
+    ),
+    (
+        Country.BELGIUM, [
+            ('MC Hobby', 'mchobby')
+        ]
+    ),
+    (
+        Country.AUSTRIA, [
+            ('Semaf', 'semaf')
         ]
     )
 ]

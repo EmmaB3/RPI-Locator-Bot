@@ -1,1 +1,3 @@
 This bot relies heavily on the RSS feed available at https://rpilocator.com/; huge kudos to the dude over at https://dphacks.com/ for setting that up!
+
+All of the code for this bot is open source; feel free to peruse it or even make a pull request of your own at https://github.com/EmmaB3/RPI-Restock-Notifier.
