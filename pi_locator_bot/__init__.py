@@ -15,10 +15,15 @@ app = Flask(__name__)
 BASE_URL = os.environ['BASE_URL']
 
 # database setup
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# prod DB
 DATABASE_PASSWORD = os.environ['DATABASE_PASSWORD']
 app.config['SQLALCHEMY_DATABASE_URI'] =\
     f'mysql://{DATABASE_USER_NAME}:{DATABASE_PASSWORD}@localhost/{DATABASE_NAME}'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# local test DB
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)

@@ -7,6 +7,7 @@
 import time
 import feedparser
 
+from pi_locator_bot.monitoring import report_error
 from notifier import send_restock_notification
 
 
@@ -14,18 +15,21 @@ def listen_for_restocks():
     last_refresh_time = time.gmtime(time.time())
 
     while True:
-        print('listening...')
-        loop_start_time = time.gmtime(time.time())
-        feed_contents = feedparser.parse('https://rpilocator.com/feed')
+        try:
+            print('listening...')
+            loop_start_time = time.gmtime(time.time())
+            feed_contents = feedparser.parse('https://rpilocator.com/feed')
 
-        restocks = feed_contents['entries']
-        for restock in restocks:
-            if restock['published_parsed'] <= last_refresh_time:
-                break
+            restocks = feed_contents['entries']
+            for restock in restocks:
+                if restock['published_parsed'] <= last_refresh_time:
+                    break
 
-            send_restock_notification([tag['term'] for tag in restock['tags']], restock['title'])
+                send_restock_notification([tag['term'] for tag in restock['tags']], restock['title'])
 
-        last_refresh_time = loop_start_time
+            last_refresh_time = loop_start_time
+        except Exception as e:
+            report_error(e)
         time.sleep(60)
 
 
