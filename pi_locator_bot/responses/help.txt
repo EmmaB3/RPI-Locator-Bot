@@ -21,6 +21,6 @@
 
 `subscribe vendors=adafruit,sparkfun types=pi3,pi4` - subscribe to restock notifications for Pi 3s and Pi 4s from Adafruit and Sparkfun
 
-`subscribe types=pi4` - subscribe to restock notifications for Pi 4s from all US vendors
+`subscribe types=pi4` - subscribe to restock notifications for Pi 4s from all vendors (in all regions)
 
 `subscribe regions=us` - subscribe to restock notifications for all Pi types from all US vendors
