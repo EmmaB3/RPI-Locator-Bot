@@ -2,8 +2,9 @@
 # PURPOSE: tracking raspberry pi restocks and notifying subscribed users accordingly
 # AUTHOR: Emma Bethel
 # CREATED: 8/18/22
-# LAST EDITED: 8/18/22
+# LAST EDITED: 9/14/22
 
+import argparse
 import time
 import feedparser
 
@@ -12,11 +13,25 @@ from notifier import send_restock_notification
 
 
 def listen_for_restocks():
-    last_refresh_time = time.gmtime(time.time())
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--start-time',
+        type=str,
+        help='Time after which events should be considered "new" on the first poll of the RSS feed. Should be in GMT '
+             'w/ format MM-DD-YYYY HH:MM:SS'
+    )
+
+    args = parser.parse_args()
+
+
+    if args.start_time is None:
+        last_refresh_time = time.gmtime(time.time())
+    else:
+        last_refresh_time = time.strptime(args.start_time, '%m-%d-%Y %H:%M:%S')
 
     while True:
         try:
-            print('listening...')
+            print(f'listening for new restocks since {last_refresh_time}...')
             loop_start_time = time.gmtime(time.time())
             feed_contents = feedparser.parse('https://rpilocator.com/feed')
 

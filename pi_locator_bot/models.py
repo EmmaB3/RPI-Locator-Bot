@@ -3,7 +3,7 @@
 #          rpi restock notifications
 # AUTHOR: Emma Bethel
 # CREATED: 8/18/22
-# LAST EDITED: 8/29/22
+# LAST EDITED: 9/14/22
 
 from pi_locator_bot import db
 
@@ -27,12 +27,16 @@ class Workspace(db.Model):
     bot_token = db.Column(db.String(64), nullable=False)
     bot_user_id = db.Column(db.String(16), nullable=False)
 
+    subscribers = db.relationship('Subscriber', cascade = "all,delete")
+
 
 class Subscriber(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     slack_id = db.Column(db.String(16), nullable=False)
     workspace = db.Column(db.Integer, db.ForeignKey("workspace.id"), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
+
+    subscriptions = db.relationship('PiSubscription', cascade = "all,delete")
 
 
 class PiSubscription(db.Model):

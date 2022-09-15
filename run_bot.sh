@@ -4,7 +4,7 @@ trap 'echo TERM signal received; kill "${WEBSERVER_PID}"; kill "${LISTENER_PID}"
 
 echo "Running rpi locator slackbot with PID $$"
 
-gunicorn -w 4 -b 0.0.0.0 'pi_locator_bot:app'  &
+gunicorn -w 4 'pi_locator_bot:app' &
 WEBSERVER_PID="$!"
 
 python3 listener.py &

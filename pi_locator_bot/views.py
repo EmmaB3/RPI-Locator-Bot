@@ -2,7 +2,7 @@
 # PURPOSE: chatbot API endpoint implementation
 # AUTHOR: Emma Bethel
 # CREATED: 8/22/22
-# LAST EDITED: 9/4/22
+# LAST EDITED: 9/14/22
 
 import logging
 
@@ -20,6 +20,7 @@ logging.basicConfig(level=logging.DEBUG)
 @slack_events_adapter.on("message")
 def respond_to_dm(payload):
     workspace = Workspace.query.filter_by(slack_id=payload['team_id']).first()
+
     user_slack_id = payload['event']['user']
 
     # if message is a DM and didn't come from the bot itself, respond to it
@@ -37,6 +38,15 @@ def respond_to_dm(payload):
             channel=user_slack_id,
             text=response_text
         )
+
+    return make_response()
+
+
+@slack_events_adapter.on('app_uninstalled')
+def delete_workspace(payload):
+    workspace = Workspace.query.filter_by(slack_id=payload['team_id']).first()
+    db.session.delete(workspace)
+    db.session.commit()
 
     return make_response()
 
