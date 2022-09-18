@@ -160,7 +160,7 @@ def subscribe(arguments: Sequence[str], user_slack_id: str, workspace_id: str) -
 
     else:
         vendors = []
-        for vendor_name in vendor_params:  # TODO: this code loooks pretty repetitive (from when you did it with types)... modularize?
+        for vendor_name in vendor_params:
             obj = PiVendor.query.filter_by(param_name=vendor_name).first()
             if obj is None:
                 return f'Error: {vendor_name} is not a valid pi vendor.'

@@ -7,7 +7,7 @@ echo "Running rpi locator slackbot with PID $$"
 gunicorn -w 4 'pi_locator_bot:app' &
 WEBSERVER_PID="$!"
 
-python3 listener.py &
+flask listen-for-restocks &
 LISTENER_PID="$!"
 
 wait

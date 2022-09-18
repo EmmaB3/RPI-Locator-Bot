@@ -32,7 +32,7 @@ def respond_to_dm(payload):
             response_text = handle_message(message_text, user_slack_id, workspace.id)
         except Exception as e:
             response_text = 'Sorry, an error has occured. Developers will be notified.'
-            report_error(e)
+            report_error(str(e))
 
         slack_client.chat_postMessage(
             channel=user_slack_id,

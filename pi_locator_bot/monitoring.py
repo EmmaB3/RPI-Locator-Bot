@@ -2,12 +2,12 @@
 # PURPOSE: helpers for error reporting and metric collection
 # AUTHOR: Emma Bethel
 # CREATED: 8/31/22
-# LAST EDITED: 8/31/22
+# LAST EDITED: 9/17/22
 
 from pi_locator_bot.models import Subscriber, Workspace
 from slack_sdk import WebClient
 
-def report_error(error):
+def report_error(error_message: str) -> None:
     admins = Subscriber.query.filter_by(is_admin=True)
 
     for admin in admins:
@@ -16,5 +16,5 @@ def report_error(error):
 
         slack_client.chat_postMessage(
             channel=admin.slack_id,
-            text=f'Error: {error}'
+            text=f'Error: {error_message}'
         )

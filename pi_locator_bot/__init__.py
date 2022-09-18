@@ -1,8 +1,8 @@
 import os
 
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 from slackeventsapi import SlackEventAdapter
 
 
@@ -42,3 +42,4 @@ slack_events_adapter = SlackEventAdapter(
 
 import pi_locator_bot.models
 import pi_locator_bot.views
+import pi_locator_bot.commands

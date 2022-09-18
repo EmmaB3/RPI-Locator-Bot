@@ -1,5 +1,9 @@
-General Tips:
+*General Tips:*
 
 - Due to the global chip shortage and increased demand during the pandemic, Pis are in reeeally high demand right now. I'm far from the only bot sending out these types of notifications, so they're selling out really fast. Like, I'm talking "gone within 15 minutes of a restock" kind of fast. Make sure you have Slack notifications turned on so you don't miss any alerts!
 
-- If buying from Adafruit, make sure you have an account with two factor authentication set up. In an effort to dissasuade scalping bots, Adafruit is only allowing accounts with 2FA configured to purchase Raspberry Pis. Other vendors may have similar policies; it's a good idea to check beforehand! (And, if you're feeling helpful, let a developer-- as listed on the github repo for this bot (https://github.com/EmmaB3/RPI-Restock-Notifier)-- know about any interesting findings/tips so they can add them to this page, and/or create your own pull request).
+- Due to the high demand, a lot of retailers currently have limits on how many Pis a single customer can order at a time. If you're trying to buy multiple Pis of the same type at once, you may have to make multiple orders and/or enlist the help of a friend; make sure to check beforehand whether your preferred vendors have any such limits!
+
+*Vendor-Specific Tips:*
+
+Adafruit (US): In an effort to dissasuade scalping bots, Adafruit is only allowing accounts with two-factor authentication configured to purchase Raspberry Pis. Make sure you have this set up and ready to go if planning on buying from Adafruit!
