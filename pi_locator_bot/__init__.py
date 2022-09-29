@@ -16,6 +16,9 @@ BASE_URL = os.environ['BASE_URL']
 
 # database setup
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True
+}
 
 # prod DB
 DATABASE_PASSWORD = os.environ['DATABASE_PASSWORD']
